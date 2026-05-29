@@ -80,13 +80,13 @@ Frontend runs on `http://localhost:3001`.
 
 ---
 
-## Option B — Mumbai Testnet
+## Option B — Amoy Testnet
 
 Use this for the full demo. Real public transaction, real Polygonscan link, NFT visible on-chain.
 
 ### Prerequisites
 
-- Alchemy or Infura account with a Mumbai RPC URL
+- Alchemy or Infura account with a Amoy RPC URL
 - Pinata account with JWT + gateway
 - WalletConnect Cloud project ID
 - Polygonscan API key (for contract verification)
@@ -95,13 +95,13 @@ All free tier. See README prerequisites section.
 
 ### 1 — Get test MATIC
 
-Get free MATIC from the [Polygon Mumbai faucet](https://faucet.polygon.technology/).
+Get free MATIC from the [Polygon Amoy faucet](https://faucet.polygon.technology/).
 
 ### 2 — Configure root `.env`
 
 ```
 PRIVATE_KEY=             # deployer wallet private key (no 0x prefix)
-MUMBAI_RPC_URL=          # e.g. https://polygon-mumbai.g.alchemy.com/v2/<key>
+AMOY_RPC_URL=          # e.g. https://polygon-amoy.g.alchemy.com/v2/<key>
 POLYGONSCAN_API_KEY=     # from polygonscan.com/myapikey
 MINTER_ADDRESS=          # wallet address that gets MINTER_ROLE
 UPGRADER_ADDRESS=        # wallet address that gets UPGRADER_ROLE
@@ -110,18 +110,18 @@ UPGRADER_ADDRESS=        # wallet address that gets UPGRADER_ROLE
 ### 3 — Deploy PetPassport
 
 ```bash
-npx hardhat run scripts/deploy-pet-passport.ts --network mumbai
+npx hardhat run scripts/deploy-pet-passport.ts --network amoy
 ```
 
 This will:
 - Deploy the implementation + UUPS proxy
-- Write addresses to `deployments/mumbai.json`
+- Write addresses to `deployments/amoy.json`
 - Verify the contract on Polygonscan automatically
 
 ### 4 — Copy proxy address to env files
 
 ```bash
-cat deployments/mumbai.json
+cat deployments/amoy.json
 ```
 
 Copy the `proxy` address into:
@@ -131,7 +131,7 @@ Copy the `proxy` address into:
 Also set in `api/.env`:
 
 ```
-POLYGON_RPC_URL=          # same as MUMBAI_RPC_URL
+POLYGON_RPC_URL=          # same as AMOY_RPC_URL
 MINTER_PRIVATE_KEY=       # private key of the wallet with MINTER_ROLE
 ```
 
@@ -151,14 +151,14 @@ make dev-frontend
 
 Frontend runs on `http://localhost:3001`.
 
-### 7 — Demo flow (Mumbai)
+### 7 — Demo flow (Amoy)
 
 1. Open `http://localhost:3001`
-2. Click **Connect Wallet** → MetaMask opens (select Mumbai testnet)
+2. Click **Connect Wallet** → MetaMask opens (select Amoy testnet)
 3. Fill in pet details: name, species, breed, date of birth, pet ID
 4. Upload a pet photo (JPEG or PNG, max 10 MB)
 5. Click **Mint Pet Passport**
-6. Wait 10–30 seconds for Mumbai confirmation
+6. Wait 10–30 seconds for Amoy confirmation
 7. **MintResult** appears with:
    - Token ID
    - Transaction hash
@@ -171,10 +171,10 @@ Frontend runs on `http://localhost:3001`.
 If the contract is changed and redeployed:
 
 ```bash
-npx hardhat run scripts/upgrade-pet-passport.ts --network mumbai
+npx hardhat run scripts/upgrade-pet-passport.ts --network amoy
 ```
 
-Reads the proxy address from `deployments/mumbai.json`, deploys the new implementation,
+Reads the proxy address from `deployments/amoy.json`, deploys the new implementation,
 and updates the JSON with the new implementation address. All existing NFT state is preserved.
 
 For localhost:

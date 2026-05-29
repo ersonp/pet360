@@ -4,7 +4,7 @@ Blockchain layer for Pet360 — the first blockchain-based pet ecosystem in Lati
 Adds NFT pet passports, vaccine certificates, and smart contract adoptions to the
 existing Pet360 Web2 SaaS platform (Vercel, 75% complete).
 
-**Chain:** Polygon (Mumbai testnet → mainnet)
+**Chain:** Polygon (Amoy testnet → mainnet)
 **Stack:** Solidity · Hardhat · Foundry · NestJS · ethers.js · Next.js · Wagmi · RainbowKit
 
 ---
@@ -53,7 +53,7 @@ pet360/
 **Accounts needed for full demo:**
 - [Pinata](https://app.pinata.cloud) — free account, get JWT + gateway
 - [WalletConnect Cloud](https://cloud.walletconnect.com) — free project ID
-- [Alchemy](https://alchemy.com) or [Infura](https://infura.io) — free Mumbai RPC URL
+- [Alchemy](https://alchemy.com) or [Infura](https://infura.io) — free Amoy RPC URL
 - [Polygonscan](https://polygonscan.com/myapikey) — free API key for contract verification
 
 ---
@@ -76,7 +76,7 @@ Edit `.env`:
 
 ```
 PRIVATE_KEY=             # deployer wallet private key (no 0x prefix)
-MUMBAI_RPC_URL=          # e.g. https://polygon-mumbai.g.alchemy.com/v2/<key>
+AMOY_RPC_URL=          # e.g. https://polygon-amoy.g.alchemy.com/v2/<key>
 POLYGONSCAN_API_KEY=     # from polygonscan.com/myapikey
 MINTER_ADDRESS=          # wallet address that gets MINTER_ROLE
 UPGRADER_ADDRESS=        # wallet address that gets UPGRADER_ROLE (can be same as deployer for dev)
@@ -100,7 +100,7 @@ PINATA_JWT=              # from app.pinata.cloud/developers/api-keys
 PINATA_GATEWAY=          # e.g. example-gateway.mypinata.cloud
 CONTRACT_ADDRESS=        # filled after deploy (step 6)
 MINTER_PRIVATE_KEY=      # private key of the wallet with MINTER_ROLE
-POLYGON_RPC_URL=         # same as MUMBAI_RPC_URL above
+POLYGON_RPC_URL=         # same as AMOY_RPC_URL above
 ```
 
 ### 4 — Install frontend dependencies
@@ -128,7 +128,7 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=   # from cloud.walletconnect.com
 See [`docs/running.md`](docs/running.md) for:
 - Running tests (Hardhat, Foundry, API)
 - Local Hardhat node setup and demo flow
-- Mumbai testnet deploy and demo flow
+- Amoy testnet deploy and demo flow
 - Upgrading the contract
 
 ---

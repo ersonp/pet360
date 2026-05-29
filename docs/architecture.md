@@ -85,7 +85,7 @@ Frontend — "View on blockchain" button + wallet connect (Wagmi + RainbowKit)
 | Environment | Network | Details |
 |---|---|---|
 | Development | Hardhat local node | Fast iteration, no gas cost |
-| Staging | Polygon Mumbai testnet | Public testnet, free MATIC from faucet |
+| Staging | Polygon Amoy testnet | Public testnet, free MATIC from faucet |
 | Production | Polygon mainnet | Real MATIC, post-audit only |
 
 
@@ -120,7 +120,7 @@ remains the fast-access layer; Filecoin handles long-term durability.
 
 | Network | Proxy | Implementation |
 |---|---|---|
-| Mumbai testnet | — | — |
+| Amoy testnet | — | — |
 | Polygon mainnet | — (post-audit) | — |
 
-_Addresses populated after `npx hardhat run scripts/deploy-pet-passport.ts --network mumbai`_
+_Addresses populated after `npx hardhat run scripts/deploy-pet-passport.ts --network amoy`_

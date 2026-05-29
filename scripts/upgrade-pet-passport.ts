@@ -78,7 +78,7 @@ async function main(): Promise<void> {
   writeDeployment(networkName, updatedRecord);
 
   // Verify new implementation on Polygonscan.
-  if (networkName === "mumbai" || networkName === "polygon") {
+  if (networkName === "amoy" || networkName === "polygon") {
     console.log("\nWaiting for block confirmations before verifying...");
     const upgradeTx = upgraded.deploymentTransaction();
     await upgradeTx?.wait(5);

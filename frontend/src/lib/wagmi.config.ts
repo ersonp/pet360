@@ -1,7 +1,7 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { createConfig, http } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { polygon, polygonMumbai } from 'wagmi/chains';
+import { polygon, polygonAmoy } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
@@ -12,10 +12,10 @@ export const isLocalMode = !projectId;
 
 export const wagmiConfig = isLocalMode
   ? createConfig({
-      chains: [polygonMumbai, polygon],
+      chains: [polygonAmoy, polygon],
       connectors: [injected()],
       transports: {
-        [polygonMumbai.id]: http(),
+        [polygonAmoy.id]: http(),
         [polygon.id]: http(),
       },
       ssr: true,
@@ -23,6 +23,6 @@ export const wagmiConfig = isLocalMode
   : getDefaultConfig({
       appName: 'Pet360',
       projectId: projectId as string,
-      chains: [polygonMumbai, polygon],
+      chains: [polygonAmoy, polygon],
       ssr: true,
     });

@@ -97,7 +97,7 @@ async function main(): Promise<void> {
   writeDeployment(networkName, record);
 
   // Polygonscan verification — only on public networks, skipped on localhost.
-  if (networkName === "mumbai" || networkName === "polygon") {
+  if (networkName === "amoy" || networkName === "polygon") {
     console.log("\nWaiting for block confirmations before verifying...");
     await deployTx?.wait(5);
     await verifyOnPolygonscan(implementationAddress);

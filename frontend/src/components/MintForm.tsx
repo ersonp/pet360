@@ -106,7 +106,7 @@ export function MintForm() {
         disabled={loading}
         className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? 'Minting… (10–30s on Mumbai)' : 'Mint Pet Passport'}
+        {loading ? 'Minting… (10–30s on Amoy)' : 'Mint Pet Passport'}
       </button>
     </form>
   );

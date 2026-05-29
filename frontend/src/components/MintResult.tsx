@@ -1,5 +1,7 @@
 'use client';
 
+import { useChainId } from 'wagmi';
+
 interface MintResultProps {
   tokenId: string;
   txHash: string;
@@ -7,10 +9,11 @@ interface MintResultProps {
   contractAddress: string;
 }
 
-// Displays the result after a successful mint.
-// Shows tokenId, txHash, and a direct link to the NFT on Polygonscan Mumbai.
 export function MintResult({ tokenId, txHash, tokenURI, contractAddress }: MintResultProps) {
-  const polygonscanBase = 'https://mumbai.polygonscan.com';
+  const chainId = useChainId();
+  const polygonscanBase = chainId === 137
+    ? 'https://polygonscan.com'
+    : 'https://amoy.polygonscan.com';
   const tokenUrl = `${polygonscanBase}/token/${contractAddress}?a=${tokenId}`;
   const txUrl = `${polygonscanBase}/tx/${txHash}`;
 

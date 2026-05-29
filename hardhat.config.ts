@@ -9,7 +9,7 @@ dotenv.config();
 
 // Pull secrets from environment — never hardcode private keys
 const PRIVATE_KEY = process.env.PRIVATE_KEY ?? "";
-const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL ?? "";
+const AMOY_RPC_URL = process.env.AMOY_RPC_URL ?? "";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY ?? "";
 
 const config: HardhatUserConfig = {
@@ -33,12 +33,12 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545",
     },
 
-    // Polygon Mumbai testnet — public testnet, free MATIC from faucet
+    // Polygon Amoy testnet — replaced Mumbai (deprecated April 2024)
     // Used for staging before mainnet deployment
-    mumbai: {
-      url: MUMBAI_RPC_URL,
+    amoy: {
+      url: AMOY_RPC_URL,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-      chainId: 80001,  // Mumbai chain ID
+      chainId: 80002,
     },
 
     // Polygon mainnet — only after third-party audit is complete
@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
   // Polygonscan verification — lets anyone read the contract source on-chain
   etherscan: {
     apiKey: {
-      polygonMumbai: POLYGONSCAN_API_KEY,
+      polygonAmoy: POLYGONSCAN_API_KEY,
       polygon: POLYGONSCAN_API_KEY,
     },
   },
