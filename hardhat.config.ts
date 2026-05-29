@@ -13,12 +13,15 @@ const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY ?? "";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.28",
+    version: "0.8.34",
     settings: {
       optimizer: {
         enabled: true,   // reduces deployed contract size and gas cost
         runs: 200,       // 200 = balanced between deploy cost and call cost
       },
+      // OZ v5.6+ uses the `mcopy` opcode which requires Cancun EVM or later.
+      // Polygon mainnet upgraded to Cancun in Q1 2024 — safe to target here.
+      evmVersion: "cancun",
     },
   },
 
