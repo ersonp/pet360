@@ -9,9 +9,14 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node",
+      "multer"
+    ],
     "strictNullChecks": true,
     "noImplicitAny": true,
     "strictBindCallApply": true,

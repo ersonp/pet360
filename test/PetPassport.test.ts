@@ -95,7 +95,10 @@ describe("PetPassport", () => {
     it("returns the correct tokenId on mint", async () => {
       const { petPassport, minter, petOwner } = await loadFixture(deployFixture);
 
-      // staticCall simulates the transaction and returns the value without broadcasting
+      // staticCall simulates the transaction locally and returns the Solidity return value.
+      // Valid for test assertions — in production the API reads tokenId from the
+      // PassportMinted event in the tx receipt instead (committed txs don't expose
+      // return values over JSON-RPC).
       const tokenId = await petPassport
         .connect(minter)
         .mint.staticCall(petOwner.address, SAMPLE_URI);

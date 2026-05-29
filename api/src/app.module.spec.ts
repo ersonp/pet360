@@ -7,6 +7,9 @@ describe('AppModule', () => {
   beforeAll(() => {
     process.env.PINATA_JWT = 'test-jwt';
     process.env.PINATA_GATEWAY = 'test.mypinata.cloud';
+    process.env.POLYGON_RPC_URL = 'http://localhost:8545';
+    process.env.MINTER_PRIVATE_KEY = '0x' + 'a'.repeat(64);
+    process.env.CONTRACT_ADDRESS = '0x' + '1'.repeat(40);
   });
 
   it('compiles the module', async () => {
