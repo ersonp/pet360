@@ -67,4 +67,51 @@ describe('ContractService', () => {
     expect(result.tokenId).toBe(BigInt(42));
     expect(result.txHash).toBe('0xtxhash');
   });
+
+  it('throws when receipt is null', async () => {
+    const { ethers } = await import('ethers');
+    (ethers.Contract as jest.Mock).mockImplementationOnce(() => ({
+      mint: jest.fn().mockResolvedValue({
+        hash: '0xtxhash',
+        wait: jest.fn().mockResolvedValue(null),
+      }),
+    }));
+
+    // Re-compile module so the new Contract mock takes effect
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ContractService,
+        { provide: ConfigService, useValue: mockConfig },
+      ],
+    }).compile();
+
+    const freshService = module.get<ContractService>(ContractService);
+
+    await expect(
+      freshService.mintPassport('0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'ipfs://QmMeta'),
+    ).rejects.toThrow('Transaction receipt not received');
+  });
+
+  it('throws when PassportMinted event is absent from receipt logs', async () => {
+    const { ethers } = await import('ethers');
+    (ethers.Contract as jest.Mock).mockImplementationOnce(() => ({
+      mint: jest.fn().mockResolvedValue({
+        hash: '0xtxhash',
+        wait: jest.fn().mockResolvedValue({ logs: [] }),
+      }),
+    }));
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ContractService,
+        { provide: ConfigService, useValue: mockConfig },
+      ],
+    }).compile();
+
+    const freshService = module.get<ContractService>(ContractService);
+
+    await expect(
+      freshService.mintPassport('0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'ipfs://QmMeta'),
+    ).rejects.toThrow('PassportMinted event not found in transaction receipt');
+  });
 });
