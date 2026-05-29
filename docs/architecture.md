@@ -89,6 +89,33 @@ Frontend — "View on blockchain" button + wallet connect (Wagmi + RainbowKit)
 | Production | Polygon mainnet | Real MATIC, post-audit only |
 
 
+## Future Infrastructure Additions
+
+### Self-hosted IPFS node
+Pinata is a managed IPFS node — the IPFS protocol is identical whether you use Pinata
+or run your own daemon. Same CIDs, same content addressing, same `ipfs://` URIs. A file
+pinned on Pinata and a file pinned on a self-hosted node produce the exact same CID for
+the same content. The only difference is operational: who runs the hardware, who handles
+uptime, and who pays the bill.
+
+The API storage layer is abstracted behind `IIpfsService` — `PassportService` has no
+direct dependency on Pinata. A `LocalIpfsService` can be added that talks to a local
+IPFS daemon (`http://localhost:5001/api/v0/add`) instead of the Pinata SDK. An env
+flag (`IPFS_PROVIDER=local|pinata`) would switch providers at startup with no changes
+to `PassportService`.
+
+Use cases:
+- Local development without a Pinata account
+- Production self-hosting for full storage control
+
+### Filecoin backup
+For production, a Filecoin integration can be layered on top of the IPFS node to
+provide cryptographic proof of storage persistence. Filecoin miners are slashed if
+they lose data — stronger guarantee than a managed pinning service alone. Pinata
+remains the fast-access layer; Filecoin handles long-term durability.
+
+---
+
 ## Deployed Addresses
 
 | Network | Proxy | Implementation |
