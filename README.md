@@ -123,100 +123,13 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=   # from cloud.walletconnect.com
 
 ---
 
-## Running Tests
+## Running & Deployment
 
-### Hardhat (TypeScript) — 27 tests
-
-```bash
-npx hardhat test
-```
-
-### Foundry (Solidity fuzz) — 26 tests, 768 fuzz runs
-
-```bash
-forge test --match-path "test/foundry/*" -v
-```
-
-### API unit tests — 11 tests
-
-```bash
-npm test --prefix api
-```
-
----
-
-## Deploy to Mumbai Testnet
-
-### 1 — Get test MATIC
-
-Get free MATIC from the [Polygon Mumbai faucet](https://faucet.polygon.technology/).
-
-### 2 — Deploy PetPassport
-
-```bash
-npx hardhat run scripts/deploy-pet-passport.ts --network mumbai
-```
-
-This will:
-- Deploy the implementation + UUPS proxy
-- Write addresses to `deployments/mumbai.json`
-- Verify the contract on Polygonscan automatically
-
-### 3 — Copy proxy address to env files
-
-```bash
-cat deployments/mumbai.json
-```
-
-Copy the `proxy` address into:
-- `api/.env` → `CONTRACT_ADDRESS`
-- `frontend/.env.local` → `NEXT_PUBLIC_CONTRACT_ADDRESS`
-
----
-
-## Running the Demo
-
-### Start the API
-
-```bash
-npm run start:dev --prefix api
-```
-
-API runs on `http://localhost:3000`.
-
-### Start the frontend
-
-```bash
-npm run dev --prefix frontend
-```
-
-Frontend runs on `http://localhost:3001`.
-
-### Demo flow
-
-1. Open `http://localhost:3001`
-2. Click **Connect Wallet** → MetaMask opens (select Mumbai testnet)
-3. Fill in pet details: name, species, breed, date of birth, pet ID
-4. Upload a pet photo (JPEG or PNG, max 10 MB)
-5. Click **Mint Pet Passport**
-6. Wait 10–30 seconds for Mumbai confirmation
-7. **MintResult** appears with:
-   - Token ID
-   - Transaction hash
-   - Link to the NFT on Polygonscan
-
----
-
-## Upgrading the Contract
-
-If the contract is changed and redeployed:
-
-```bash
-npx hardhat run scripts/upgrade-pet-passport.ts --network mumbai
-```
-
-Reads the proxy address from `deployments/mumbai.json`, deploys the new implementation,
-and updates the JSON with the new implementation address. All existing NFT state is preserved.
+See [`docs/running.md`](docs/running.md) for:
+- Running tests (Hardhat, Foundry, API)
+- Local Hardhat node setup and demo flow
+- Mumbai testnet deploy and demo flow
+- Upgrading the contract
 
 ---
 

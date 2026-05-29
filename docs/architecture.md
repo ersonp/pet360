@@ -141,7 +141,8 @@ pet360/
 │       ├── providers/      # Wagmi + RainbowKit Web3Provider
 │       └── lib/            # wagmi config
 └── docs/
-    └── architecture.md     # Full architecture reference
+    ├── architecture.md     # Full architecture reference
+    └── running.md          # Running tests, local node, Mumbai deploy
 ```
 
 ---
