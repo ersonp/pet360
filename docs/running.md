@@ -4,22 +4,15 @@
 
 All tests run locally — no network connection required.
 
-### Hardhat (TypeScript) — 27 tests
-
 ```bash
-npx hardhat test
+make test
 ```
 
-### Foundry (Solidity fuzz) — 26 tests, 768 fuzz runs
+Or individually:
 
 ```bash
-forge test --match-path "test/foundry/*" -v
-```
-
-### API unit tests — 16 tests
-
-```bash
-npm test --prefix api
+make test-contracts   # Hardhat (27) + Foundry (26)
+make test-api         # API unit tests (16)
 ```
 
 ---
@@ -29,51 +22,41 @@ npm test --prefix api
 Use this for development and iteration. No MATIC, no external accounts needed.
 The Polygonscan link in MintResult will not resolve (no public explorer for localhost).
 
-### 1 — Start a local node
+### 1 — Start a local node (terminal 1)
 
 ```bash
-npx hardhat node
+make local-node
 ```
 
 Keeps running in the foreground. Leave this terminal open.
 
-### 2 — Deploy to localhost
+### 2 — Deploy and configure env files (terminal 2)
 
 ```bash
-npx hardhat run scripts/deploy-pet-passport.ts --network localhost
+make local-deploy
 ```
 
-Writes addresses to `deployments/localhost.json`.
+This runs the deploy script and then `scripts/setup-local-env.sh` which:
+- Reads the proxy address from `deployments/localhost.json`
+- Sets `CONTRACT_ADDRESS`, `POLYGON_RPC_URL`, `MINTER_PRIVATE_KEY` in `api/.env`
+- Sets `NEXT_PUBLIC_CONTRACT_ADDRESS` in `frontend/.env.local`
+- Uses Hardhat account 0 as the minter (deterministic key, no real funds)
 
-### 3 — Copy proxy address to env files
+> **Note:** `PINATA_JWT` is set to a fake value — minting will fail at the IPFS
+> upload step. Set a real Pinata free account JWT in `api/.env` for the full flow.
+
+### 4 — Start the API (terminal 3)
 
 ```bash
-cat deployments/localhost.json
-```
-
-Copy the `proxy` address into:
-- `api/.env` → `CONTRACT_ADDRESS`
-- `frontend/.env.local` → `NEXT_PUBLIC_CONTRACT_ADDRESS`
-
-Also set in `api/.env`:
-
-```
-POLYGON_RPC_URL=http://localhost:8545
-MINTER_PRIVATE_KEY=  # use one of the pre-funded Hardhat accounts printed by `npx hardhat node`
-```
-
-### 4 — Start the API
-
-```bash
-npm run start:dev --prefix api
+make dev-api
 ```
 
 API runs on `http://localhost:3000`.
 
-### 5 — Start the frontend
+### 5 — Start the frontend (terminal 4)
 
 ```bash
-npm run dev --prefix frontend
+make dev-frontend
 ```
 
 Frontend runs on `http://localhost:3001`.
@@ -148,7 +131,7 @@ MINTER_PRIVATE_KEY=       # private key of the wallet with MINTER_ROLE
 ### 5 — Start the API
 
 ```bash
-npm run start:dev --prefix api
+make dev-api
 ```
 
 API runs on `http://localhost:3000`.
@@ -156,7 +139,7 @@ API runs on `http://localhost:3000`.
 ### 6 — Start the frontend
 
 ```bash
-npm run dev --prefix frontend
+make dev-frontend
 ```
 
 Frontend runs on `http://localhost:3001`.
