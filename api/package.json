@@ -18,6 +18,7 @@
     "@nestjs/config": "4.0.4",
     "@nestjs/core": "11.1.19",
     "@nestjs/platform-express": "11.1.19",
+    "pinata": "^2.5.6",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
   },
@@ -51,6 +52,7 @@
     "testEnvironment": "node"
   },
   "allowScripts": {
-    "@nestjs/core@11.1.19": true
+    "@nestjs/core@11.1.19": true,
+    "fsevents@2.3.3": true
   }
 }
