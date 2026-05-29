@@ -1,17 +1,28 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { createConfig, http } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 import { polygon, polygonMumbai } from 'wagmi/chains';
 
-// Wagmi config — connects to Polygon Mumbai (testnet) and Polygon mainnet.
-// WalletConnect project ID is required for RainbowKit's multi-wallet modal.
-// Get one free at https://cloud.walletconnect.com
-// WalletConnect requires a real projectId in production.
-// For local dev without a projectId, wallet connect modal won't open but
-// the page will still render. Get one free at https://cloud.walletconnect.com
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? 'demo';
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
-export const wagmiConfig = getDefaultConfig({
-  appName: 'Pet360',
-  projectId,
-  chains: [polygonMumbai, polygon],
-  ssr: true, // required for Next.js App Router
-});
+// Local mode: no WalletConnect project ID set.
+// Uses injected connector only (MetaMask browser extension).
+// Set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID for full multi-wallet support.
+export const isLocalMode = !projectId;
+
+export const wagmiConfig = isLocalMode
+  ? createConfig({
+      chains: [polygonMumbai, polygon],
+      connectors: [injected()],
+      transports: {
+        [polygonMumbai.id]: http(),
+        [polygon.id]: http(),
+      },
+      ssr: true,
+    })
+  : getDefaultConfig({
+      appName: 'Pet360',
+      projectId: projectId as string,
+      chains: [polygonMumbai, polygon],
+      ssr: true,
+    });
