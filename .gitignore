@@ -23,3 +23,6 @@ ignition/deployments/chain-31337
 # Local deployment addresses (mumbai.json and polygon.json are committed after deploy)
 deployments/localhost.json
 deployments/hardhat.json
+
+# TypeScript incremental build cache
+**/*.tsbuildinfo
