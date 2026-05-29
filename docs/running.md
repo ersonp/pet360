@@ -42,8 +42,15 @@ This runs the deploy script and then `scripts/setup-local-env.sh` which:
 - Sets `NEXT_PUBLIC_CONTRACT_ADDRESS` in `frontend/.env.local`
 - Uses Hardhat account 0 as the minter (deterministic key, no real funds)
 
-> **Note:** `PINATA_JWT` is set to a fake value — minting will fail at the IPFS
-> upload step. Set a real Pinata free account JWT in `api/.env` for the full flow.
+> **Pinata required for full mint flow:** `setup-local-env.sh` sets a fake JWT so
+> the API starts without error, but minting will fail at the IPFS upload step.
+> To fix: sign up at [app.pinata.cloud](https://app.pinata.cloud) (free) →
+> Developers → API Keys → New Key → copy JWT and gateway, then set in `api/.env`:
+> ```
+> PINATA_JWT=<your-jwt>
+> PINATA_GATEWAY=<your-gateway>.mypinata.cloud
+> ```
+> Restart `make dev-api` after updating.
 
 ### 4 — Start the API (terminal 3)
 
