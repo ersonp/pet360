@@ -114,24 +114,43 @@ Frontend — "View on blockchain" button + wallet connect (Wagmi + RainbowKit)
 
 ---
 
-## Repository Structure (planned)
+## Repository Structure
 
 ```
 pet360/
-├── contracts/          # Solidity smart contracts
-│   ├── PetPassport.sol
-│   ├── VaccineCert.sol
-│   └── Adoption.sol
-├── test/               # Hardhat + Foundry tests
-├── scripts/            # Deploy and migration scripts
-├── api/                # NestJS blockchain API bridge
-├── frontend/           # Wagmi + RainbowKit Web3 UI components
-├── docs/               # Architecture and technical docs
-└── CLAUDE.md           # Claude Code project context
+├── contracts/              # Solidity smart contracts
+│   ├── PetPassport.sol     # ERC-721 UUPS — one NFT per pet
+│   └── interfaces/
+├── scripts/                # Deploy and upgrade scripts
+│   ├── deploy-pet-passport.ts
+│   └── upgrade-pet-passport.ts
+├── test/
+│   ├── PetPassport.test.ts # Hardhat TypeScript tests (27)
+│   └── foundry/
+│       └── PetPassport.t.sol  # Foundry fuzz + unit tests (26)
+├── deployments/            # Per-network deployed addresses (JSON)
+├── api/                    # NestJS blockchain bridge API
+│   └── src/
+│       ├── ipfs/           # Pinata IPFS upload service
+│       ├── passport/       # POST /passport/mint endpoint
+│       └── blockchain/     # ethers.js contract wrapper
+├── frontend/               # Next.js demo (wallet connect + mint UI)
+│   └── src/
+│       ├── app/            # Next.js App Router pages
+│       ├── components/     # WalletConnectButton, MintForm, MintResult
+│       ├── providers/      # Wagmi + RainbowKit Web3Provider
+│       └── lib/            # wagmi config
+└── docs/
+    └── architecture.md     # Full architecture reference
 ```
 
 ---
 
-## Timeline
+## Deployed Addresses
 
-Full blockchain integration target: **6 months** from project start.
+| Network | Proxy | Implementation |
+|---|---|---|
+| Mumbai testnet | — | — |
+| Polygon mainnet | — (post-audit) | — |
+
+_Addresses populated after `npx hardhat run scripts/deploy-pet-passport.ts --network mumbai`_
