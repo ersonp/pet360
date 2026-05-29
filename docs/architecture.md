@@ -11,16 +11,6 @@ built from scratch on top of the existing platform.
 
 ---
 
-## Team
-
-| Role | Responsibility |
-|---|---|
-| Tech Manager | Top-level reporting |
-| Blockchain Lead | Architecture, smart contract standards, security |
-| Blockchain Developer | Smart contract implementation, testing, deployment |
-| Blockchain API Engineer | NestJS + ethers.js integration layer |
-
----
 
 ## Feature Roadmap (priority order)
 
@@ -43,7 +33,6 @@ built from scratch on top of the existing platform.
 | Backend bridge | NestJS + ethers.js | Connects Web2 platform to blockchain |
 | Frontend Web3 | Wagmi + RainbowKit | Wallet connection, MetaMask support |
 | Decentralized storage | IPFS via Pinata | Pet photos, metadata JSON, vaccine PDFs |
-| Backup storage | Filecoin | Long-term decentralized backup |
 | Wallet | MetaMask | Dominant wallet in Brazil |
 
 ---
@@ -73,19 +62,6 @@ Mandatory third-party smart contract audit before any mainnet deployment.
 - Stores: owner address, pet ID, tokenURI → IPFS metadata
 - Metadata includes: name, species, breed, date of birth, photo CID, medical record CIDs
 
-### `VaccineCert.sol`
-- Standard: ERC-1155
-- Minted by: verified veterinarians only (AccessControl role)
-- One token type per vaccine event
-- Soulbound (non-transferable) — tied to the pet passport
-- Batch-mintable for clinic efficiency
-
-### `Adoption.sol`
-- Manages the full adoption lifecycle
-- 30-day cooldown period enforced on-chain
-- NGO fee automatically split and distributed on adoption completion
-- Events emitted for Web2 platform sync
-
 ---
 
 ## MVP Data Flow
@@ -112,40 +88,6 @@ Frontend — "View on blockchain" button + wallet connect (Wagmi + RainbowKit)
 | Staging | Polygon Mumbai testnet | Public testnet, free MATIC from faucet |
 | Production | Polygon mainnet | Real MATIC, post-audit only |
 
----
-
-## Repository Structure
-
-```
-pet360/
-├── contracts/              # Solidity smart contracts
-│   ├── PetPassport.sol     # ERC-721 UUPS — one NFT per pet
-│   └── interfaces/
-├── scripts/                # Deploy and upgrade scripts
-│   ├── deploy-pet-passport.ts
-│   └── upgrade-pet-passport.ts
-├── test/
-│   ├── PetPassport.test.ts # Hardhat TypeScript tests (27)
-│   └── foundry/
-│       └── PetPassport.t.sol  # Foundry fuzz + unit tests (26)
-├── deployments/            # Per-network deployed addresses (JSON)
-├── api/                    # NestJS blockchain bridge API
-│   └── src/
-│       ├── ipfs/           # Pinata IPFS upload service
-│       ├── passport/       # POST /passport/mint endpoint
-│       └── blockchain/     # ethers.js contract wrapper
-├── frontend/               # Next.js demo (wallet connect + mint UI)
-│   └── src/
-│       ├── app/            # Next.js App Router pages
-│       ├── components/     # WalletConnectButton, MintForm, MintResult
-│       ├── providers/      # Wagmi + RainbowKit Web3Provider
-│       └── lib/            # wagmi config
-└── docs/
-    ├── architecture.md     # Full architecture reference
-    └── running.md          # Running tests, local node, Mumbai deploy
-```
-
----
 
 ## Deployed Addresses
 
