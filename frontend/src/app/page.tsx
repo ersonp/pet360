@@ -4,7 +4,7 @@ import { MintForm } from '@/components/MintForm';
 // Demo page — shows the full mint flow end to end:
 //   1. Connect MetaMask via RainbowKit
 //   2. Fill pet details + upload photo
-//   3. API mints NFT on Polygon Mumbai
+//   3. API mints NFT on Polygon Amoy
 //   4. View result + Polygonscan link
 export default function HomePage() {
   return (
@@ -12,7 +12,7 @@ export default function HomePage() {
       <header className="border-b bg-white px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Pet360</h1>
-          <p className="text-xs text-gray-500">NFT Passport Demo — Polygon Mumbai</p>
+          <p className="text-xs text-gray-500">NFT Passport Demo — Polygon amoy</p>
         </div>
         <WalletConnectButton />
       </header>
@@ -22,7 +22,7 @@ export default function HomePage() {
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Mint Pet Passport</h2>
             <p className="text-sm text-gray-500 mt-1">
-              Creates an ERC-721 NFT on Polygon Mumbai with the pet&apos;s identity and photo stored on IPFS.
+              Creates an ERC-721 NFT on Polygon amoy with the pet&apos;s identity and photo stored on IPFS.
             </p>
           </div>
           <MintForm />

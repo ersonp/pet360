@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545",
     },
 
-    // Polygon Amoy testnet — replaced Mumbai (deprecated April 2024)
+    // Polygon Amoy testnet
     // Used for staging before mainnet deployment
     amoy: {
       url: AMOY_RPC_URL,

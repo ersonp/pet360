@@ -20,7 +20,7 @@ node_modules
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
 
-# Local deployment addresses (mumbai.json and polygon.json are committed after deploy)
+# Local deployment addresses (amoy.json and polygon.json are committed after deploy)
 deployments/localhost.json
 deployments/hardhat.json
 
