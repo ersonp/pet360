@@ -9,6 +9,15 @@ existing Pet360 Web2 SaaS platform (Vercel, 75% complete).
 
 ---
 
+## Deployed Contracts
+
+| Network | Proxy | Implementation |
+|---|---|---|
+| Polygon Amoy testnet | [0xf78e7D...32BD](https://amoy.polygonscan.com/address/0xf78e7D03EC2cB4A9a152f904B7Cb5FD56b4E32BD) | [0x1F9126...809E](https://amoy.polygonscan.com/address/0x1F9126b16Fa41DEB3C60BFE83450E97E0383809E#code) |
+| Polygon mainnet | — (post-audit) | — |
+
+---
+
 ## Repo Structure
 
 ```
@@ -20,9 +29,9 @@ pet360/
 │   ├── deploy-pet-passport.ts
 │   └── upgrade-pet-passport.ts
 ├── test/
-│   ├── PetPassport.test.ts # Hardhat TypeScript tests (27)
+│   ├── PetPassport.test.ts # Hardhat TypeScript tests (31)
 │   └── foundry/
-│       └── PetPassport.t.sol  # Foundry fuzz + unit tests (26)
+│       └── PetPassport.t.sol  # Foundry fuzz + unit tests (29)
 ├── deployments/            # Per-network deployed addresses (JSON)
 ├── api/                    # NestJS blockchain bridge API
 │   └── src/
@@ -52,74 +61,19 @@ pet360/
 
 **Accounts needed for full demo:**
 - [Pinata](https://app.pinata.cloud) — free account, get JWT + gateway
-- [WalletConnect Cloud](https://cloud.walletconnect.com) — free project ID
-- [Alchemy](https://alchemy.com) or [Infura](https://infura.io) — free Amoy RPC URL
 - [Polygonscan](https://polygonscan.com/myapikey) — free API key for contract verification
+- [WalletConnect Cloud](https://cloud.walletconnect.com) — free project ID (optional — local dev works without it)
 
 ---
 
 ## Setup
 
-### 1 — Install root dependencies (contracts + scripts)
-
 ```bash
-npm install
+make install   # installs root, api, and frontend dependencies
+make env       # creates .env, api/.env, frontend/.env.local from examples
 ```
 
-### 2 — Configure environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```
-PRIVATE_KEY=             # deployer wallet private key (no 0x prefix)
-AMOY_RPC_URL=          # e.g. https://polygon-amoy.g.alchemy.com/v2/<key>
-POLYGONSCAN_API_KEY=     # from polygonscan.com/myapikey
-MINTER_ADDRESS=          # wallet address that gets MINTER_ROLE
-UPGRADER_ADDRESS=        # wallet address that gets UPGRADER_ROLE (can be same as deployer for dev)
-```
-
-### 3 — Install API dependencies
-
-```bash
-npm install --prefix api
-```
-
-Configure `api/.env`:
-
-```bash
-cp api/.env.example api/.env
-```
-
-```
-PORT=3000
-PINATA_JWT=              # from app.pinata.cloud/developers/api-keys
-PINATA_GATEWAY=          # e.g. example-gateway.mypinata.cloud
-CONTRACT_ADDRESS=        # filled after deploy (step 6)
-MINTER_PRIVATE_KEY=      # private key of the wallet with MINTER_ROLE
-POLYGON_RPC_URL=         # same as AMOY_RPC_URL above
-```
-
-### 4 — Install frontend dependencies
-
-```bash
-npm install --prefix frontend
-```
-
-Configure `frontend/.env.local`:
-
-```bash
-cp frontend/.env.example frontend/.env.local
-```
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3000
-NEXT_PUBLIC_CONTRACT_ADDRESS=   # filled after deploy (step 6)
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=   # from cloud.walletconnect.com
-```
+Edit the generated files — see [`docs/running.md`](docs/running.md) for what each variable does.
 
 ---
 
@@ -136,4 +90,4 @@ See [`docs/running.md`](docs/running.md) for:
 ## Architecture
 
 See [`docs/architecture.md`](docs/architecture.md) for full technical details:
-proxy pattern, on-chain vs off-chain data decisions, team structure, and feature roadmap.
+proxy pattern, on-chain vs off-chain data decisions, security model, and feature roadmap.
