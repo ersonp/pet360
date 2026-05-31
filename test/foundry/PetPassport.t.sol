@@ -13,6 +13,32 @@ import "../../contracts/PetPassport.sol";
 // In Foundry tests, we deploy it manually to stay framework-agnostic.
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
+/// @dev Malicious ERC-721 receiver that re-enters mint() inside onERC721Received.
+///      Used to verify nonReentrant blocks the second call.
+contract ReentrantReceiver {
+    PetPassport private _target;
+    string private constant URI = "ipfs://QmEvil/metadata.json";
+    bool public attacked;
+
+    constructor(PetPassport target) {
+        _target = target;
+    }
+
+    /// @dev Called by _safeMint when this contract receives an NFT.
+    ///      Attempts to mint again — should revert due to nonReentrant.
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external returns (bytes4) {
+        attacked = true;
+        // This call must revert — nonReentrant is locked for this call stack.
+        _target.mint(address(this), URI);
+        return this.onERC721Received.selector;
+    }
+}
+
 /// @title PetPassport Foundry Tests
 /// @notice Unit + fuzz tests for PetPassport.sol.
 ///         Complements the Hardhat TypeScript tests (27 deterministic cases).
@@ -54,6 +80,24 @@ contract PetPassportTest is Test {
 
         // 4. Cast the proxy to PetPassport so our tests can call contract methods.
         passport = PetPassport(address(proxy));
+    }
+
+    // ─── Initialization guards ────────────────────────────────────────────────
+
+    function test_CannotReinitializeProxy() public {
+        // The initializer modifier allows initialize() to be called only once.
+        // Any subsequent call must revert — prevents privilege escalation.
+        vm.expectRevert();
+        passport.initialize(other, other, other);
+    }
+
+    function test_ImplementationCannotBeInitialized() public {
+        // Deploy a bare implementation (not wrapped in a proxy).
+        // Calling initialize() on it directly must revert — prevents an attacker
+        // from taking ownership of the implementation contract.
+        PetPassport impl = new PetPassport();
+        vm.expectRevert();
+        impl.initialize(other, other, other);
     }
 
     // ─── Deployment ───────────────────────────────────────────────────────────
@@ -308,5 +352,24 @@ contract PetPassportTest is Test {
     function test_SupportsAccessControlInterface() public view {
         // IAccessControl interface ID
         assertTrue(passport.supportsInterface(0x7965db0b));
+    }
+
+    // ─── Reentrancy guard ─────────────────────────────────────────────────────
+
+    function test_MintBlocksReentrancy() public {
+        // Deploy a malicious receiver that re-enters mint() inside onERC721Received.
+        ReentrantReceiver attacker = new ReentrantReceiver(passport);
+
+        // Grant minter role to the attacker contract so the re-entrant call
+        // would succeed if nonReentrant were absent.
+        bytes32 minterRole = passport.MINTER_ROLE();
+        vm.prank(admin);
+        passport.grantRole(minterRole, address(attacker));
+
+        // The outer mint triggers onERC721Received → attacker re-enters mint().
+        // nonReentrant must cause the inner call to revert, which bubbles up.
+        vm.expectRevert();
+        vm.prank(minter);
+        passport.mint(address(attacker), "ipfs://QmFirst/metadata.json");
     }
 }

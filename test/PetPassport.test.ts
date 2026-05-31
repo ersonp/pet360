@@ -46,6 +46,31 @@ async function deployFixture() {
 
 describe("PetPassport", () => {
 
+  // ── Initialization guards ──────────────────────────────────────────────────
+
+  describe("Initialization guards", () => {
+    it("reverts if initialize is called again on the proxy", async () => {
+      const { petPassport, stranger } = await loadFixture(deployFixture);
+
+      await expect(
+        petPassport.initialize(stranger.address, stranger.address, stranger.address)
+      ).to.be.reverted;
+    });
+
+    it("reverts if initialize is called directly on the implementation", async () => {
+      const { stranger } = await loadFixture(deployFixture);
+
+      // Get the implementation address from the EIP-1967 storage slot
+      const PetPassportFactory = await ethers.getContractFactory("PetPassport");
+      const impl = await PetPassportFactory.deploy();
+      await impl.waitForDeployment();
+
+      await expect(
+        impl.initialize(stranger.address, stranger.address, stranger.address)
+      ).to.be.reverted;
+    });
+  });
+
   // ── Deployment ─────────────────────────────────────────────────────────────
 
   describe("Deployment", () => {
@@ -220,6 +245,32 @@ describe("PetPassport", () => {
       await expect(
         petPassport.connect(minter).updateTokenURI(1, "")
       ).to.be.revertedWith("PetPassport: empty tokenURI");
+    });
+  });
+
+  // ── Reentrancy guard ───────────────────────────────────────────────────────
+
+  describe("Reentrancy guard", () => {
+    it("mint is protected by nonReentrant — sequential mints from minter succeed", async () => {
+      // nonReentrant blocks re-entry within a single call stack, not sequential calls.
+      // This test verifies the modifier does not break normal sequential usage.
+      const { petPassport, minter, petOwner } = await loadFixture(deployFixture);
+
+      await petPassport.connect(minter).mint(petOwner.address, SAMPLE_URI);
+      await petPassport.connect(minter).mint(petOwner.address, SAMPLE_URI);
+
+      expect(await petPassport.ownerOf(1)).to.equal(petOwner.address);
+      expect(await petPassport.ownerOf(2)).to.equal(petOwner.address);
+    });
+
+    it("updateTokenURI is protected by nonReentrant — sequential calls succeed", async () => {
+      const { petPassport, minter, petOwner } = await loadFixture(deployFixture);
+
+      await petPassport.connect(minter).mint(petOwner.address, SAMPLE_URI);
+      await petPassport.connect(minter).updateTokenURI(1, UPDATED_URI);
+      await petPassport.connect(minter).updateTokenURI(1, SAMPLE_URI);
+
+      expect(await petPassport.tokenURI(1)).to.equal(SAMPLE_URI);
     });
   });
 

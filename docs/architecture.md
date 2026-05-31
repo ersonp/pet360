@@ -51,6 +51,15 @@ Medical records and pet data evolve over a pet's lifetime, so contracts must be 
 ### Security
 Mandatory third-party smart contract audit before any mainnet deployment.
 
+`DEFAULT_ADMIN_ROLE` controls who can grant and revoke all other roles (including
+`MINTER_ROLE`). Before mainnet deployment this role must be held by a multisig
+(e.g. Gnosis Safe) — a single compromised private key would otherwise let an
+attacker grant themselves `MINTER_ROLE` and mint arbitrary NFTs.
+
+`ReentrancyGuardUpgradeable` is applied to `mint` and `updateTokenURI` to
+prevent reentrancy via the `onERC721Received` callback that `_safeMint` triggers
+on recipient contracts.
+
 ---
 
 ## Smart Contracts

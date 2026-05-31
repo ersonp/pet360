@@ -86,54 +86,57 @@ Use this for the full demo. Real public transaction, real Polygonscan link, NFT 
 
 ### Prerequisites
 
-- Alchemy or Infura account with a Amoy RPC URL
-- Pinata account with JWT + gateway
-- WalletConnect Cloud project ID
-- Polygonscan API key (for contract verification)
+- Pinata account with JWT + gateway (free)
+- Polygonscan API key for contract verification (free)
+- MATIC from the [Polygon Amoy faucet](https://faucet.polygon.technology/) (free)
 
-All free tier. See README prerequisites section.
+### 1 — Create env files
 
-### 1 — Get test MATIC
+```bash
+make env
+```
 
-Get free MATIC from the [Polygon Amoy faucet](https://faucet.polygon.technology/).
+This creates root `.env`, `api/.env`, and `frontend/.env.local` from examples if they don't exist.
 
 ### 2 — Configure root `.env`
 
 ```
 PRIVATE_KEY=             # deployer wallet private key (no 0x prefix)
-AMOY_RPC_URL=          # e.g. https://polygon-amoy.g.alchemy.com/v2/<key>
+AMOY_RPC_URL=https://rpc-amoy.polygon.technology
 POLYGONSCAN_API_KEY=     # from polygonscan.com/myapikey
 MINTER_ADDRESS=          # wallet address that gets MINTER_ROLE
 UPGRADER_ADDRESS=        # wallet address that gets UPGRADER_ROLE
 ```
 
+> Root `.env` is only needed for Amoy/mainnet deploy. Local dev does not use it.
+
 ### 3 — Deploy PetPassport
 
 ```bash
-npx hardhat run scripts/deploy-pet-passport.ts --network amoy
+make amoy-deploy
 ```
 
 This will:
 - Deploy the implementation + UUPS proxy
 - Write addresses to `deployments/amoy.json`
 - Verify the contract on Polygonscan automatically
+- Auto-set in `api/.env`: `CONTRACT_ADDRESS`, `POLYGON_RPC_URL`
+- Auto-set in `frontend/.env.local`: `NEXT_PUBLIC_CONTRACT_ADDRESS`
 
-### 4 — Copy proxy address to env files
+### 4 — Set `MINTER_PRIVATE_KEY` in `api/.env`
 
-```bash
-cat deployments/amoy.json
-```
-
-Copy the `proxy` address into:
-- `api/.env` → `CONTRACT_ADDRESS`
-- `frontend/.env.local` → `NEXT_PUBLIC_CONTRACT_ADDRESS`
-
-Also set in `api/.env`:
+This is the only value that cannot be automated — it is your private key.
 
 ```
-POLYGON_RPC_URL=          # same as AMOY_RPC_URL
-MINTER_PRIVATE_KEY=       # private key of the wallet with MINTER_ROLE
+MINTER_PRIVATE_KEY=    # private key of the wallet set as MINTER_ADDRESS
 ```
+
+Get it from MetaMask → account avatar → Account details → Show private key.
+MetaMask shows the key listed per chain (Ethereum, Polygon, Base, etc.) —
+they are all the same value, copy any of them. Remove the `0x` prefix.
+
+> `PINATA_JWT` and `PINATA_GATEWAY` are already in `api/.env` from local dev setup.
+> If starting fresh, set them from [app.pinata.cloud](https://app.pinata.cloud).
 
 ### 5 — Start the API
 

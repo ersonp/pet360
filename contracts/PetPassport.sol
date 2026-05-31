@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-// OpenZeppelin upgradeable variants — identical to the regular versions but
-// store state in EIP-7201 namespaced storage slots, which prevents storage
-// collisions when the proxy delegates calls to the implementation contract.
+// OpenZeppelin upgradeable variants store state in EIP-7201 namespaced storage
+// slots, which prevents storage collisions when the proxy delegates calls to
+// the implementation contract.
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -23,10 +23,10 @@ import "./interfaces/IPetPassport.sol";
 ///
 /// @custom:security-contact security@pet360.com.br
 contract PetPassport is
-    Initializable,        // prevents the implementation contract from being initialised directly
-    ERC721Upgradeable,    // standard NFT logic (transfer, approve, ownerOf, etc.)
-    AccessControlUpgradeable, // role-based access control
-    UUPSUpgradeable,      // upgrade mechanism (only UPGRADER_ROLE can upgrade)
+    Initializable,               // prevents the implementation contract from being initialised directly
+    ERC721Upgradeable,           // standard NFT logic (transfer, approve, ownerOf, etc.)
+    AccessControlUpgradeable,    // role-based access control
+    UUPSUpgradeable,             // upgrade mechanism (only UPGRADER_ROLE can upgrade)
     IPetPassport
 {
     // ─── Roles ───────────────────────────────────────────────────────────────
@@ -39,6 +39,36 @@ contract PetPassport is
     ///         Allows upgrading the contract implementation.
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
+    /// @dev DEFAULT_ADMIN_ROLE (inherited from AccessControl) controls who can
+    ///      grant and revoke all other roles. This MUST be held by a multisig
+    ///      (e.g. Gnosis Safe) before mainnet deployment — a compromised hot
+    ///      wallet would allow an attacker to grant MINTER_ROLE to themselves.
+
+    // ─── Reentrancy guard ─────────────────────────────────────────────────────
+
+    /// @dev Status values for the inline reentrancy guard.
+    ///      Using 1/2 instead of 0/1 avoids a cold SSTORE on first call
+    ///      (non-zero → non-zero is cheaper than zero → non-zero on EVM).
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    /// @dev Prevents reentrant calls to mint and updateTokenURI.
+    ///      _safeMint makes an external call to onERC721Received on recipient
+    ///      contracts — a malicious receiver could re-enter mint before state
+    ///      settles. This guard blocks that re-entry.
+    ///
+    ///      Note: OZ 5.x removed ReentrancyGuardUpgradeable. Their regular
+    ///      ReentrancyGuard uses EIP-7201 storage (upgrade-safe), but
+    ///      hardhat-upgrades still rejects its constructor. We inline the
+    ///      same logic here using a plain storage variable, which the
+    ///      upgrade validator handles correctly.
+    modifier nonReentrant() {
+        require(_reentrancyStatus != _ENTERED, "ReentrancyGuard: reentrant call");
+        _reentrancyStatus = _ENTERED;
+        _;
+        _reentrancyStatus = _NOT_ENTERED;
+    }
+
     // ─── Storage ─────────────────────────────────────────────────────────────
 
     /// @dev Auto-incrementing counter for token IDs.
@@ -48,6 +78,22 @@ contract PetPassport is
     /// @dev Maps tokenId → IPFS metadata URI.
     ///      Stored here rather than in ERC721 base so we can update it.
     mapping(uint256 => string) private _tokenURIs;
+
+    /// @dev Reentrancy guard status — 1 = not entered, 2 = entered.
+    ///      Must come after _nextTokenId and _tokenURIs to preserve storage
+    ///      layout compatibility across upgrades.
+    uint256 private _reentrancyStatus;
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /// @dev Disables direct initialization of the implementation contract.
+    ///      Without this, anyone could call initialize() on the implementation
+    ///      and claim DEFAULT_ADMIN_ROLE on it. The proxy is unaffected — it has
+    ///      its own separate storage and is already initialized.
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     // ─── Initializer ─────────────────────────────────────────────────────────
 
@@ -67,6 +113,10 @@ contract PetPassport is
         __ERC721_init("PetPassport", "PET");  // sets NFT name and symbol
         __AccessControl_init();
 
+        // Initialise reentrancy guard — 0 → NOT_ENTERED avoids an extra SSTORE
+        // on the first nonReentrant call.
+        _reentrancyStatus = _NOT_ENTERED;
+
         // Start token IDs at 1
         _nextTokenId = 1;
 
@@ -84,7 +134,7 @@ contract PetPassport is
     function mint(
         address to,
         string calldata uri  // renamed from tokenURI to avoid shadowing the view function
-    ) external onlyRole(MINTER_ROLE) returns (uint256) {
+    ) external onlyRole(MINTER_ROLE) nonReentrant returns (uint256) {
         require(to != address(0), "PetPassport: mint to zero address");
         require(bytes(uri).length > 0, "PetPassport: empty tokenURI");
 
@@ -108,7 +158,7 @@ contract PetPassport is
     function updateTokenURI(
         uint256 tokenId,
         string calldata newTokenURI
-    ) external onlyRole(MINTER_ROLE) {
+    ) external onlyRole(MINTER_ROLE) nonReentrant {
         require(_ownerOf(tokenId) != address(0), "PetPassport: token does not exist");
         require(bytes(newTokenURI).length > 0, "PetPassport: empty tokenURI");
 
