@@ -27,12 +27,14 @@ pet360/
 │   └── interfaces/
 ├── scripts/                # Deploy and upgrade scripts
 │   ├── deploy-pet-passport.ts
-│   └── upgrade-pet-passport.ts
+│   ├── upgrade-pet-passport.ts
+│   └── setup-local-env.sh  # auto-populates api/.env + frontend/.env.local
 ├── test/
 │   ├── PetPassport.test.ts # Hardhat TypeScript tests (31)
 │   └── foundry/
 │       └── PetPassport.t.sol  # Foundry fuzz + unit tests (29)
 ├── deployments/            # Per-network deployed addresses (JSON)
+├── .openzeppelin/          # OZ upgrades proxy manifest (storage layout)
 ├── api/                    # NestJS blockchain bridge API
 │   └── src/
 │       ├── ipfs/           # Pinata IPFS upload service
@@ -44,8 +46,10 @@ pet360/
 │       ├── components/     # WalletConnectButton, MintForm, MintResult
 │       ├── providers/      # Wagmi + RainbowKit Web3Provider
 │       └── lib/            # wagmi config
+├── Makefile                # common tasks: install, test, deploy, dev
 └── docs/
-    └── architecture.md     # Full architecture reference
+    ├── architecture.md     # full architecture reference
+    └── running.md          # running, deployment, and upgrade guide
 ```
 
 ---
