@@ -28,7 +28,7 @@ built from scratch on top of the existing platform.
 |---|---|---|
 | Blockchain network | Polygon (EVM) | Low gas fees, MetaMask-native, dominant in Brazil |
 | Smart contracts | Solidity | EVM standard |
-| Dev / test / deploy | Hardhat + Foundry | Industry standard, replaces deprecated Truffle/Ganache |
+| Dev / test / deploy | Hardhat + Foundry (hybrid) | See tooling decision below |
 | Base contracts | OpenZeppelin | ERC-721, ERC-1155, UUPS proxy, AccessControl |
 | Backend bridge | NestJS + ethers.js | Connects Web2 platform to blockchain |
 | Frontend Web3 | Wagmi + RainbowKit | Wallet connection, MetaMask support |
@@ -38,6 +38,27 @@ built from scratch on top of the existing platform.
 ---
 
 ## Architecture Decisions
+
+### Tooling — Hardhat + Foundry Hybrid
+
+We use both tools for different roles:
+
+| Tool | Role |
+|---|---|
+| Hardhat | Deploy scripts (TypeScript), local node (`npx hardhat node`) |
+| Foundry | Unit, fuzz, and invariant tests; static analysis via Slither |
+
+**Why hybrid:** Deploy scripts are TypeScript (`scripts/deploy-pet-passport.ts`) and
+run via Hardhat. Foundry's equivalent is Forge scripts (`.s.sol`) with `anvil` as the
+local node — anvil is Rust-based and ~10–100x faster than `npx hardhat node`, with
+better archive state support for fork testing.
+
+**Direction:** The industry is moving toward full Foundry (anvil + Forge scripts +
+cast). Hardhat is JS-ecosystem and slower. New serious Solidity projects start
+Foundry-first. When we add `VaccineCert.sol` or `Adoption.sol`, deploy scripts should
+be migrated to Forge scripts to complete the move.
+
+---
 
 ### Proxy Pattern — UUPS
 All core contracts use the UUPS (Universal Upgradeable Proxy Standard) pattern.
