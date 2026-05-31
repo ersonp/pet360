@@ -177,6 +177,10 @@ contract PetPassportTest is Test {
     function testFuzz_MintAnyValidRecipientAndURI(address to, string calldata uri) public {
         vm.assume(to != address(0));
         vm.assume(bytes(uri).length > 0);
+        // _safeMint calls onERC721Received on contract recipients — exclude
+        // contracts that don't implement IERC721Receiver (they revert correctly,
+        // but that's not what this test is checking).
+        vm.assume(to.code.length == 0);
 
         vm.prank(minter);
         uint256 tokenId = passport.mint(to, uri);
