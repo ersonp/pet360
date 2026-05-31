@@ -1,0 +1,9 @@
+{
+  "proxy": "0xf78e7D03EC2cB4A9a152f904B7Cb5FD56b4E32BD",
+  "implementation": "0x1F9126b16Fa41DEB3C60BFE83450E97E0383809E",
+  "deployer": "0xaC5d36443d7505349A921b032f083160109382D4",
+  "txHash": "0xcb41f974f529bead63e82a50871c9f7e7d64b7dc357eec6086a5ca7890c30c69",
+  "deployedAt": "2026-05-31T06:10:04.104Z",
+  "network": "amoy",
+  "chainId": 80002
+}

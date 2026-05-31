@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.34;
+pragma solidity ^0.8.35;
 
 /// @title IPetPassport
 /// @notice Interface for the PetPassport NFT contract.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.34;
+pragma solidity ^0.8.35;
 
 // Foundry's test primitives: Test base class, assertion helpers, and cheatcodes.
 // vm = cheatcodes (prank, expectRevert, etc.)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.34;
+pragma solidity ^0.8.35;
 
 // OpenZeppelin upgradeable variants store state in EIP-7201 namespaced storage
 // slots, which prevents storage collisions when the proxy delegates calls to

@@ -14,7 +14,7 @@ const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY ?? "";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.34",
+    version: "0.8.35",
     settings: {
       optimizer: {
         enabled: true,   // reduces deployed contract size and gas cost
@@ -49,12 +49,11 @@ const config: HardhatUserConfig = {
     },
   },
 
-  // Polygonscan verification — lets anyone read the contract source on-chain
+  // Polygonscan verification — lets anyone read the contract source on-chain.
+  // Etherscan v2 API uses a single key for all chains (v1 per-network keys
+  // were deprecated May 2025).
   etherscan: {
-    apiKey: {
-      polygonAmoy: POLYGONSCAN_API_KEY,
-      polygon: POLYGONSCAN_API_KEY,
-    },
+    apiKey: POLYGONSCAN_API_KEY,
   },
 
   // Gas reporter — shows gas cost per function call when running tests
