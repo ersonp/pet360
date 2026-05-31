@@ -1,4 +1,4 @@
-.PHONY: install env test test-contracts test-api local-node local-deploy amoy-deploy dev-api dev-frontend help
+.PHONY: install env test test-contracts test-api test-fork slither local-node local-deploy amoy-deploy dev-api dev-frontend help
 
 help:
 	@echo "Pet360 Web3 — available targets"
@@ -11,6 +11,8 @@ help:
 	@echo "    make test            Run all tests"
 	@echo "    make test-contracts  Run Hardhat + Foundry contract tests"
 	@echo "    make test-api        Run API unit tests"
+	@echo "    make test-fork       Run Foundry tests forked against Amoy testnet"
+	@echo "    make slither         Run Slither static analysis (requires: pip install slither-analyzer)"
 	@echo ""
 	@echo "  Local development (run each in a separate terminal)"
 	@echo "    make local-node      Start Hardhat local node"
@@ -42,6 +44,16 @@ test-contracts:
 
 test-api:
 	npm test --prefix api
+
+# Runs Foundry tests against a live fork of Amoy testnet.
+# Requires AMOY_RPC_URL to be set in the root .env file.
+test-fork:
+	forge test --fork-url $(shell grep AMOY_RPC_URL .env | cut -d '=' -f2) -v
+
+# Static analysis — catches common vulnerabilities automatically.
+# Install once: pip install slither-analyzer
+slither:
+	slither contracts/ --solc-remaps "@openzeppelin/=node_modules/@openzeppelin/" --exclude-dependencies
 
 local-node:
 	npx hardhat node

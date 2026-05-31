@@ -11,8 +11,10 @@ make test
 Or individually:
 
 ```bash
-make test-contracts   # Hardhat (27) + Foundry (26)
+make test-contracts   # Hardhat (31) + Foundry (29) + invariant tests
 make test-api         # API unit tests (16)
+make test-fork        # Foundry tests forked against Amoy (requires AMOY_RPC_URL in .env)
+make slither          # Slither static analysis (requires: pip install slither-analyzer)
 ```
 
 ---

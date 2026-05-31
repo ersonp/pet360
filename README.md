@@ -60,6 +60,7 @@ pet360/
 | Node.js | 22.x | https://nodejs.org |
 | npm | ≥ 11.10.0 | `npm install -g npm@latest` |
 | Foundry | latest | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
+| Slither | latest | `pip install slither-analyzer` |
 | MetaMask | browser extension | https://metamask.io |
 
 **Accounts needed for full demo:**
