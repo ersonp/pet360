@@ -1,4 +1,4 @@
-.PHONY: install env test test-contracts test-api test-fork slither local-node local-deploy amoy-deploy dev-api dev-frontend help
+.PHONY: install env test test-contracts test-api test-fork coverage snapshot fmt slither local-node local-deploy amoy-deploy dev-api dev-frontend help
 
 help:
 	@echo "Pet360 Web3 — available targets"
@@ -11,7 +11,10 @@ help:
 	@echo "    make test            Run all tests"
 	@echo "    make test-contracts  Run Hardhat + Foundry contract tests"
 	@echo "    make test-api        Run API unit tests"
-	@echo "    make test-fork       Run Foundry tests forked against Amoy testnet"
+	@echo "    make test-fork       Run Foundry tests forked against mainnet archive RPC"
+	@echo "    make coverage        Foundry test coverage report"
+	@echo "    make snapshot        Record gas snapshot (commit .gas-snapshot to track regressions)"
+	@echo "    make fmt             Format Solidity files with forge fmt"
 	@echo "    make slither         Run Slither static analysis (requires: pip install slither-analyzer)"
 	@echo ""
 	@echo "  Local development (run each in a separate terminal)"
@@ -51,6 +54,21 @@ test-api:
 # Set AMOY_RPC_URL to a mainnet archive endpoint in root .env before running.
 test-fork:
 	forge test --fork-url $(shell grep AMOY_RPC_URL .env | cut -d '=' -f2) -v
+
+# Test coverage — shows which lines/branches are hit by tests.
+# Target: >85% line coverage before audit.
+coverage:
+	forge coverage --match-path "test/foundry/*"
+
+# Gas snapshot — records gas cost per test to .gas-snapshot.
+# Commit this file so CI can catch gas regressions on future changes.
+snapshot:
+	forge snapshot --match-path "test/foundry/*"
+
+# Solidity formatter — formats all .sol files in place.
+# Run before committing contract changes.
+fmt:
+	forge fmt
 
 # Static analysis — catches common vulnerabilities automatically.
 # Install once: pip install slither-analyzer
