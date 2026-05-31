@@ -56,9 +56,10 @@ Mandatory third-party smart contract audit before any mainnet deployment.
 (e.g. Gnosis Safe) — a single compromised private key would otherwise let an
 attacker grant themselves `MINTER_ROLE` and mint arbitrary NFTs.
 
-`ReentrancyGuardUpgradeable` is applied to `mint` and `updateTokenURI` to
+An inline `nonReentrant` modifier is applied to `mint` and `updateTokenURI` to
 prevent reentrancy via the `onERC721Received` callback that `_safeMint` triggers
-on recipient contracts.
+on recipient contracts. OZ 5.x removed `ReentrancyGuardUpgradeable`; the inline
+implementation uses a plain storage variable validated by the upgrades plugin.
 
 ---
 
@@ -95,7 +96,6 @@ Frontend — "View on blockchain" button + wallet connect (Wagmi + RainbowKit)
 |---|---|---|
 | Development | Hardhat local node | Fast iteration, no gas cost |
 | Staging | Polygon Amoy testnet | Public testnet, free MATIC from faucet |
-| Production | Polygon mainnet | Real MATIC, post-audit only |
 
 
 ## Future Infrastructure Additions
@@ -129,7 +129,4 @@ remains the fast-access layer; Filecoin handles long-term durability.
 
 | Network | Proxy | Implementation |
 |---|---|---|
-| Amoy testnet | — | — |
-| Polygon mainnet | — (post-audit) | — |
-
-_Addresses populated after `npx hardhat run scripts/deploy-pet-passport.ts --network amoy`_
+| Polygon Amoy testnet | [0xf78e7D...32BD](https://amoy.polygonscan.com/address/0xf78e7D03EC2cB4A9a152f904B7Cb5FD56b4E32BD) | [0x1F9126...809E](https://amoy.polygonscan.com/address/0x1F9126b16Fa41DEB3C60BFE83450E97E0383809E#code) |

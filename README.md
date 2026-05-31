@@ -14,7 +14,6 @@ existing Pet360 Web2 SaaS platform (Vercel, 75% complete).
 | Network | Proxy | Implementation |
 |---|---|---|
 | Polygon Amoy testnet | [0xf78e7D...32BD](https://amoy.polygonscan.com/address/0xf78e7D03EC2cB4A9a152f904B7Cb5FD56b4E32BD) | [0x1F9126...809E](https://amoy.polygonscan.com/address/0x1F9126b16Fa41DEB3C60BFE83450E97E0383809E#code) |
-| Polygon mainnet | — (post-audit) | — |
 
 ---
 
