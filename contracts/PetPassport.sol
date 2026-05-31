@@ -23,10 +23,10 @@ import {IPetPassport} from "./interfaces/IPetPassport.sol";
 ///
 /// @custom:security-contact security@pet360.com.br
 contract PetPassport is
-    Initializable,               // prevents the implementation contract from being initialised directly
-    ERC721Upgradeable,           // standard NFT logic (transfer, approve, ownerOf, etc.)
-    AccessControlUpgradeable,    // role-based access control
-    UUPSUpgradeable,             // upgrade mechanism (only UPGRADER_ROLE can upgrade)
+    Initializable, // prevents the implementation contract from being initialised directly
+    ERC721Upgradeable, // standard NFT logic (transfer, approve, ownerOf, etc.)
+    AccessControlUpgradeable, // role-based access control
+    UUPSUpgradeable, // upgrade mechanism (only UPGRADER_ROLE can upgrade)
     IPetPassport
 {
     // ─── Roles ───────────────────────────────────────────────────────────────
@@ -112,11 +112,7 @@ contract PetPassport is
     /// @param defaultAdmin  Address that receives DEFAULT_ADMIN_ROLE (can grant/revoke roles).
     /// @param minter        Address that receives MINTER_ROLE (the NestJS API wallet).
     /// @param upgrader      Address that receives UPGRADER_ROLE (admin multisig).
-    function initialize(
-        address defaultAdmin,
-        address minter,
-        address upgrader
-    ) public initializer {
+    function initialize(address defaultAdmin, address minter, address upgrader) public initializer {
         // Initialise parent contracts — must call all __X_init functions
         // in the inheritance chain for upgradeable contracts.
         __ERC721_init("PetPassport", "PET");
@@ -140,10 +136,7 @@ contract PetPassport is
     /// @inheritdoc IPetPassport
     /// @dev Follows Checks-Effects-Interactions: all state is written before
     ///      _safeMint triggers the external onERC721Received callback.
-    function mint(
-        address to,
-        string calldata uri
-    ) external onlyRole(MINTER_ROLE) nonReentrant returns (uint256) {
+    function mint(address to, string calldata uri) external onlyRole(MINTER_ROLE) nonReentrant returns (uint256) {
         // Checks
         if (to == address(0)) revert PetPassport__MintToZeroAddress();
         if (bytes(uri).length == 0) revert PetPassport__EmptyTokenURI();
@@ -159,10 +152,7 @@ contract PetPassport is
     }
 
     /// @inheritdoc IPetPassport
-    function updateTokenURI(
-        uint256 tokenId,
-        string calldata newTokenURI
-    ) external onlyRole(MINTER_ROLE) nonReentrant {
+    function updateTokenURI(uint256 tokenId, string calldata newTokenURI) external onlyRole(MINTER_ROLE) nonReentrant {
         // Checks
         if (_ownerOf(tokenId) == address(0)) revert PetPassport__TokenDoesNotExist(tokenId);
         if (bytes(newTokenURI).length == 0) revert PetPassport__EmptyTokenURI();
@@ -178,9 +168,7 @@ contract PetPassport is
     /// @dev    Overrides ERC721Upgradeable.tokenURI to use our custom storage.
     /// @param  tokenId The token to query.
     /// @return         The IPFS metadata URI.
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         if (_ownerOf(tokenId) == address(0)) revert PetPassport__TokenDoesNotExist(tokenId);
         return _tokenURIs[tokenId];
     }
@@ -190,9 +178,12 @@ contract PetPassport is
     ///         Wallets call this to check if the contract is a valid ERC-721.
     /// @param  interfaceId The interface identifier to check.
     /// @return             True if the interface is supported.
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721Upgradeable, AccessControlUpgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 
@@ -202,7 +193,5 @@ contract PetPassport is
     /// @dev    Required by UUPSUpgradeable. Called internally before any upgrade.
     ///         If this reverts, the upgrade is blocked.
     /// @param  newImplementation Address of the new implementation contract.
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyRole(UPGRADER_ROLE) {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }

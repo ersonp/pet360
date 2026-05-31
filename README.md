@@ -62,6 +62,7 @@ pet360/
 | Foundry | latest | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
 | Slither | latest | `pip install slither-analyzer` |
 | MetaMask | browser extension | https://metamask.io |
+| Solidity by Nomic Foundation | VS Code extension | `NomicFoundation.hardhat-solidity` — enables `forge fmt` on save |
 
 **Accounts needed for full demo:**
 - [Pinata](https://app.pinata.cloud) — free account, get JWT + gateway
@@ -88,6 +89,22 @@ See [`docs/running.md`](docs/running.md) for:
 - Local Hardhat node setup and demo flow
 - Amoy testnet deploy and demo flow
 - Upgrading the contract
+
+---
+
+## Access Control Roles
+
+PetPassport uses OpenZeppelin AccessControl with three roles:
+
+| Role | Constant | Who holds it | What it can do |
+|---|---|---|---|
+| `DEFAULT_ADMIN_ROLE` | `bytes32(0)` | Multisig (Gnosis Safe) — **must not be an EOA on mainnet** | Grant and revoke all other roles |
+| `MINTER_ROLE` | `keccak256("MINTER_ROLE")` | NestJS API wallet | Mint new passports, update tokenURIs |
+| `UPGRADER_ROLE` | `keccak256("UPGRADER_ROLE")` | Multisig (Gnosis Safe) | Upgrade the contract implementation |
+
+**Security requirement:** `DEFAULT_ADMIN_ROLE` and `UPGRADER_ROLE` must be transferred to a
+Gnosis Safe multisig before mainnet deployment. A compromised EOA holding either role would
+allow an attacker to mint arbitrary NFTs or replace the contract with a malicious implementation.
 
 ---
 

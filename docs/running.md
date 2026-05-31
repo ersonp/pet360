@@ -1,5 +1,15 @@
 # Pet360 Web3 — Running & Deployment Guide
 
+## Editor Setup
+
+### Solidity format on save (VS Code)
+
+1. Install the **Solidity by Nomic Foundation** extension (`NomicFoundation.hardhat-solidity`)
+2. The project's `.vscode/settings.json` is already configured — no further action needed
+
+This routes format-on-save through `forge fmt`, keeping editor formatting consistent
+with `make fmt`.
+
 ## Running Tests
 
 All tests run locally — no network connection required.

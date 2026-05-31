@@ -26,12 +26,7 @@ contract ReentrantReceiver {
 
     /// @dev Called by _safeMint when this contract receives an NFT.
     ///      Attempts to mint again — should revert due to nonReentrant.
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
         attacked = true;
         // This call must revert — nonReentrant is locked for this call stack.
         _target.mint(address(this), URI);
@@ -52,11 +47,11 @@ contract PetPassportTest is Test {
     PetPassport internal passport;
 
     // Test accounts — vm.addr(n) derives a deterministic address from a private key.
-    address internal admin   = vm.addr(1);
-    address internal minter  = vm.addr(2);
+    address internal admin = vm.addr(1);
+    address internal minter = vm.addr(2);
     address internal upgrader = vm.addr(3);
-    address internal user    = vm.addr(4);
-    address internal other   = vm.addr(5); // no roles
+    address internal user = vm.addr(4);
+    address internal other = vm.addr(5); // no roles
 
     string internal constant BASE_URI = "ipfs://QmTestHash/metadata.json";
 
@@ -70,10 +65,7 @@ contract PetPassportTest is Test {
 
         // 2. Encode the initialize() call — this is what the proxy executes
         //    on construction, equivalent to a constructor for the proxy.
-        bytes memory initData = abi.encodeCall(
-            PetPassport.initialize,
-            (admin, minter, upgrader)
-        );
+        bytes memory initData = abi.encodeCall(PetPassport.initialize, (admin, minter, upgrader));
 
         // 3. Wrap in ERC1967Proxy — this is the permanent contract address.
         ERC1967Proxy proxy = new ERC1967Proxy(address(impl), initData);

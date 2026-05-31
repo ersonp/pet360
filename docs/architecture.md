@@ -71,6 +71,25 @@ Medical records and pet data evolve over a pet's lifetime, so contracts must be 
 - **Off-chain (IPFS):** pet photos, metadata JSON, vaccine PDFs, mutable fields
 - tokenURI is updatable and points to the current IPFS metadata CID
 
+### Emergency Pause Mechanism
+
+PetPassport does **not** implement a pause mechanism (e.g. OpenZeppelin `Pausable`).
+
+**Decision rationale:**
+- PetPassport is a registry contract — pausing mint/update does not protect already-minted
+  tokens, which remain transferable via standard ERC-721 functions regardless.
+- The upgrade mechanism (UUPS + `UPGRADER_ROLE`) provides a stronger emergency response:
+  if a vulnerability is found, the contract can be upgraded to a fixed implementation
+  without requiring a separate pause transaction.
+- A pause adds complexity and a centralisation vector (whoever holds the pauser role can
+  halt the entire system unilaterally).
+
+**If a pause is added in future:** use `PausableUpgradeable` from OZ and apply
+`whenNotPaused` to `mint` and `updateTokenURI`. Gate `pause()`/`unpause()` behind
+a dedicated role, not `DEFAULT_ADMIN_ROLE`.
+
+---
+
 ### Security
 Mandatory third-party smart contract audit before any mainnet deployment.
 

@@ -26,15 +26,15 @@ contract PetPassportHandler is Test {
     // because some state (like total minted) is not exposed directly.
     uint256 public ghostMintCount;
     mapping(uint256 => address) public ghostOwners;
-    mapping(uint256 => string)  public ghostURIs;
+    mapping(uint256 => string) public ghostURIs;
 
     string internal constant BASE_URI = "ipfs://QmTest/metadata.json";
-    string internal constant NEW_URI  = "ipfs://QmUpdated/metadata.json";
+    string internal constant NEW_URI = "ipfs://QmUpdated/metadata.json";
 
     constructor(PetPassport _passport, address _admin, address _minter, address _upgrader) {
         passport = _passport;
-        admin    = _admin;
-        minter   = _minter;
+        admin = _admin;
+        minter = _minter;
         upgrader = _upgrader;
     }
 
@@ -49,7 +49,7 @@ contract PetPassportHandler is Test {
 
         ghostMintCount++;
         ghostOwners[tokenId] = to;
-        ghostURIs[tokenId]   = BASE_URI;
+        ghostURIs[tokenId] = BASE_URI;
     }
 
     /// @dev Minter updates an existing token's URI. No-ops on unminted tokens.
@@ -93,20 +93,17 @@ contract PetPassportHandler is Test {
 ///         These tests answer: "no matter what sequence of valid operations
 ///         is performed, do our core safety properties always hold?"
 contract PetPassportInvariantTest is Test {
-    PetPassport          internal passport;
-    PetPassportHandler   internal handler;
+    PetPassport internal passport;
+    PetPassportHandler internal handler;
 
-    address internal admin    = vm.addr(10);
-    address internal minter   = vm.addr(11);
+    address internal admin = vm.addr(10);
+    address internal minter = vm.addr(11);
     address internal upgrader = vm.addr(12);
 
     function setUp() public {
         // Deploy impl + proxy (same pattern as unit tests)
         PetPassport impl = new PetPassport();
-        bytes memory initData = abi.encodeCall(
-            PetPassport.initialize,
-            (admin, minter, upgrader)
-        );
+        bytes memory initData = abi.encodeCall(PetPassport.initialize, (admin, minter, upgrader));
         ERC1967Proxy proxy = new ERC1967Proxy(address(impl), initData);
         passport = PetPassport(address(proxy));
 
@@ -124,11 +121,7 @@ contract PetPassportInvariantTest is Test {
     function invariant_allMintedTokensHaveOwner() public view {
         uint256 count = handler.ghostMintCount();
         for (uint256 i = 1; i <= count; i++) {
-            assertNotEq(
-                passport.ownerOf(i),
-                address(0),
-                "invariant: minted token has zero owner"
-            );
+            assertNotEq(passport.ownerOf(i), address(0), "invariant: minted token has zero owner");
         }
     }
 
@@ -138,11 +131,7 @@ contract PetPassportInvariantTest is Test {
     function invariant_ghostOwnerMatchesContract() public view {
         uint256 count = handler.ghostMintCount();
         for (uint256 i = 1; i <= count; i++) {
-            assertEq(
-                passport.ownerOf(i),
-                handler.ghostOwners(i),
-                "invariant: ghost owner mismatch"
-            );
+            assertEq(passport.ownerOf(i), handler.ghostOwners(i), "invariant: ghost owner mismatch");
         }
     }
 
@@ -160,11 +149,7 @@ contract PetPassportInvariantTest is Test {
     function invariant_tokenURINeverEmpty() public view {
         uint256 count = handler.ghostMintCount();
         for (uint256 i = 1; i <= count; i++) {
-            assertGt(
-                bytes(passport.tokenURI(i)).length,
-                0,
-                "invariant: tokenURI is empty"
-            );
+            assertGt(bytes(passport.tokenURI(i)).length, 0, "invariant: tokenURI is empty");
         }
     }
 
@@ -172,9 +157,6 @@ contract PetPassportInvariantTest is Test {
     ///         Verifies that no call sequence causes the minter role to be
     ///         silently revoked or reassigned without admin action.
     function invariant_minterRoleIntact() public view {
-        assertTrue(
-            passport.hasRole(passport.MINTER_ROLE(), minter),
-            "invariant: minter lost MINTER_ROLE"
-        );
+        assertTrue(passport.hasRole(passport.MINTER_ROLE(), minter), "invariant: minter lost MINTER_ROLE");
     }
 }
