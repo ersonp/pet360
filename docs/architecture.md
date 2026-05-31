@@ -53,10 +53,12 @@ run via Hardhat. Foundry's equivalent is Forge scripts (`.s.sol`) with `anvil` a
 local node — anvil is Rust-based and ~10–100x faster than `npx hardhat node`, with
 better archive state support for fork testing.
 
-**Direction:** The industry is moving toward full Foundry (anvil + Forge scripts +
-cast). Hardhat is JS-ecosystem and slower. New serious Solidity projects start
-Foundry-first. When we add `VaccineCert.sol` or `Adoption.sol`, deploy scripts should
-be migrated to Forge scripts to complete the move.
+**Direction:** Foundry is the majority framework (57% of Solidity devs, 2025 survey)
+and the dominant choice for security-critical and protocol-level work. Hardhat 3
+(stable May 2026) added Solidity-native tests and fuzzing, narrowing the gap. The
+hybrid pattern — Foundry for tests, Hardhat for deployments — is explicitly endorsed
+by experienced teams and remains the right call as long as our deploy scripts are
+TypeScript. If we migrate deploy to Forge scripts, Hardhat can be dropped.
 
 ---
 
