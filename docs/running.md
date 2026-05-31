@@ -8,12 +8,20 @@ All tests run locally — no network connection required.
 make test
 ```
 
+> **Note on `make test-fork`:** Fork testing hammers the RPC with hundreds of
+> requests per second. The public `rpc-amoy.polygon.technology` endpoint is
+> Cloudflare rate-limited and will return HTTP 429. You need a private RPC:
+> - [Alchemy](https://alchemy.com) — Polygon Amoy, free tier
+> - [Infura](https://infura.io) — Polygon Amoy, free tier
+>
+> Set it in root `.env`: `AMOY_RPC_URL=https://polygon-amoy.g.alchemy.com/v2/<key>`
+
 Or individually:
 
 ```bash
 make test-contracts   # Hardhat (31) + Foundry (29) + invariant tests
 make test-api         # API unit tests (16)
-make test-fork        # Foundry tests forked against Amoy (requires AMOY_RPC_URL in .env)
+make test-fork        # Foundry tests forked against Amoy (requires private RPC — see note below)
 make slither          # Slither static analysis (requires: pip install slither-analyzer)
 ```
 
