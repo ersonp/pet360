@@ -45,10 +45,10 @@ test-contracts:
 test-api:
 	npm test --prefix api
 
-# Runs Foundry tests against a live fork of Amoy testnet.
-# Requires a private RPC endpoint — the public rpc-amoy.polygon.technology
-# is rate-limited by Cloudflare and will fail. Use Alchemy or Infura free tier.
-# Set AMOY_RPC_URL=https://polygon-amoy.g.alchemy.com/v2/<key> in root .env.
+# Runs Foundry tests against a live fork of a mainnet-class network.
+# NOT included in `make test` — testnets (Amoy) do not maintain archive state
+# reliably enough for fork testing. Use a mainnet archive RPC (Alchemy/Infura).
+# Set AMOY_RPC_URL to a mainnet archive endpoint in root .env before running.
 test-fork:
 	forge test --fork-url $(shell grep AMOY_RPC_URL .env | cut -d '=' -f2) -v
 

@@ -8,13 +8,10 @@ All tests run locally — no network connection required.
 make test
 ```
 
-> **Note on `make test-fork`:** Fork testing hammers the RPC with hundreds of
-> requests per second. The public `rpc-amoy.polygon.technology` endpoint is
-> Cloudflare rate-limited and will return HTTP 429. You need a private RPC:
-> - [Alchemy](https://alchemy.com) — Polygon Amoy, free tier
-> - [Infura](https://infura.io) — Polygon Amoy, free tier
->
-> Set it in root `.env`: `AMOY_RPC_URL=https://polygon-amoy.g.alchemy.com/v2/<key>`
+> **Note on `make test-fork`:** Not included in `make test`. Amoy testnet does
+> not maintain full archive state — fork tests against it will fail with
+> "historical state not available" even on paid RPC tiers. This target is
+> reserved for mainnet forking when a mainnet archive endpoint is available.
 
 Or individually:
 
