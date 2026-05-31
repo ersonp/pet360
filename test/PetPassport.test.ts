@@ -185,7 +185,7 @@ describe("PetPassport", () => {
 
       await expect(
         petPassport.connect(minter).mint(ethers.ZeroAddress, SAMPLE_URI)
-      ).to.be.revertedWith("PetPassport: mint to zero address");
+      ).to.be.revertedWithCustomError(petPassport, "PetPassport__MintToZeroAddress");
     });
 
     it("reverts when minting with empty tokenURI", async () => {
@@ -193,7 +193,7 @@ describe("PetPassport", () => {
 
       await expect(
         petPassport.connect(minter).mint(petOwner.address, "")
-      ).to.be.revertedWith("PetPassport: empty tokenURI");
+      ).to.be.revertedWithCustomError(petPassport, "PetPassport__EmptyTokenURI");
     });
   });
 
@@ -234,7 +234,7 @@ describe("PetPassport", () => {
 
       await expect(
         petPassport.connect(minter).updateTokenURI(999, UPDATED_URI)
-      ).to.be.revertedWith("PetPassport: token does not exist");
+      ).to.be.revertedWithCustomError(petPassport, "PetPassport__TokenDoesNotExist");
     });
 
     it("reverts when updating with empty tokenURI", async () => {
@@ -244,7 +244,7 @@ describe("PetPassport", () => {
 
       await expect(
         petPassport.connect(minter).updateTokenURI(1, "")
-      ).to.be.revertedWith("PetPassport: empty tokenURI");
+      ).to.be.revertedWithCustomError(petPassport, "PetPassport__EmptyTokenURI");
     });
   });
 
@@ -280,8 +280,8 @@ describe("PetPassport", () => {
     it("reverts for non-existent token", async () => {
       const { petPassport } = await loadFixture(deployFixture);
 
-      await expect(petPassport.tokenURI(999)).to.be.revertedWith(
-        "PetPassport: token does not exist"
+      await expect(petPassport.tokenURI(999)).to.be.revertedWithCustomError(
+        petPassport, "PetPassport__TokenDoesNotExist"
       );
     });
   });

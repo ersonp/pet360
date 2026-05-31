@@ -156,13 +156,13 @@ contract PetPassportTest is Test {
     }
 
     function test_MintRevertsOnZeroAddress() public {
-        vm.expectRevert("PetPassport: mint to zero address");
+        vm.expectRevert(PetPassport.PetPassport__MintToZeroAddress.selector);
         vm.prank(minter);
         passport.mint(address(0), BASE_URI);
     }
 
     function test_MintRevertsOnEmptyURI() public {
-        vm.expectRevert("PetPassport: empty tokenURI");
+        vm.expectRevert(PetPassport.PetPassport__EmptyTokenURI.selector);
         vm.prank(minter);
         passport.mint(user, "");
     }
@@ -234,7 +234,7 @@ contract PetPassportTest is Test {
     }
 
     function test_UpdateTokenURIRevertsOnNonExistentToken() public {
-        vm.expectRevert("PetPassport: token does not exist");
+        vm.expectRevert(abi.encodeWithSelector(PetPassport.PetPassport__TokenDoesNotExist.selector, 999));
         vm.prank(minter);
         passport.updateTokenURI(999, "ipfs://QmHash/metadata.json");
     }
@@ -243,7 +243,7 @@ contract PetPassportTest is Test {
         vm.prank(minter);
         passport.mint(user, BASE_URI);
 
-        vm.expectRevert("PetPassport: empty tokenURI");
+        vm.expectRevert(PetPassport.PetPassport__EmptyTokenURI.selector);
         vm.prank(minter);
         passport.updateTokenURI(1, "");
     }
@@ -342,7 +342,7 @@ contract PetPassportTest is Test {
     // ─── tokenURI edge cases ──────────────────────────────────────────────────
 
     function test_TokenURIRevertsForNonExistentTokenId() public {
-        vm.expectRevert("PetPassport: token does not exist");
+        vm.expectRevert(abi.encodeWithSelector(PetPassport.PetPassport__TokenDoesNotExist.selector, 999));
         passport.tokenURI(999);
     }
 

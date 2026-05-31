@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.35;
+pragma solidity 0.8.35;
 
 // OpenZeppelin upgradeable variants store state in EIP-7201 namespaced storage
 // slots, which prevents storage collisions when the proxy delegates calls to
 // the implementation contract.
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "./interfaces/IPetPassport.sol";
+import {IPetPassport} from "./interfaces/IPetPassport.sol";
 
 /// @title PetPassport
 /// @notice ERC-721 NFT that represents a pet's digital identity on Pet360.
@@ -44,30 +44,13 @@ contract PetPassport is
     ///      (e.g. Gnosis Safe) before mainnet deployment — a compromised hot
     ///      wallet would allow an attacker to grant MINTER_ROLE to themselves.
 
-    // ─── Reentrancy guard ─────────────────────────────────────────────────────
+    // ─── Reentrancy guard constants ───────────────────────────────────────────
 
     /// @dev Status values for the inline reentrancy guard.
     ///      Using 1/2 instead of 0/1 avoids a cold SSTORE on first call
     ///      (non-zero → non-zero is cheaper than zero → non-zero on EVM).
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
-
-    /// @dev Prevents reentrant calls to mint and updateTokenURI.
-    ///      _safeMint makes an external call to onERC721Received on recipient
-    ///      contracts — a malicious receiver could re-enter mint before state
-    ///      settles. This guard blocks that re-entry.
-    ///
-    ///      Note: OZ 5.x removed ReentrancyGuardUpgradeable. Their regular
-    ///      ReentrancyGuard uses EIP-7201 storage (upgrade-safe), but
-    ///      hardhat-upgrades still rejects its constructor. We inline the
-    ///      same logic here using a plain storage variable, which the
-    ///      upgrade validator handles correctly.
-    modifier nonReentrant() {
-        require(_reentrancyStatus != _ENTERED, "ReentrancyGuard: reentrant call");
-        _reentrancyStatus = _ENTERED;
-        _;
-        _reentrancyStatus = _NOT_ENTERED;
-    }
 
     // ─── Storage ─────────────────────────────────────────────────────────────
 
@@ -83,6 +66,32 @@ contract PetPassport is
     ///      Must come after _nextTokenId and _tokenURIs to preserve storage
     ///      layout compatibility across upgrades.
     uint256 private _reentrancyStatus;
+
+    // ─── Errors ───────────────────────────────────────────────────────────────
+
+    error PetPassport__MintToZeroAddress();
+    error PetPassport__EmptyTokenURI();
+    error PetPassport__TokenDoesNotExist(uint256 tokenId);
+    error PetPassport__ReentrantCall();
+
+    // ─── Modifiers ────────────────────────────────────────────────────────────
+
+    /// @dev Prevents reentrant calls to mint and updateTokenURI.
+    ///      _safeMint makes an external call to onERC721Received on recipient
+    ///      contracts — a malicious receiver could re-enter mint before state
+    ///      settles. This guard blocks that re-entry.
+    ///
+    ///      Note: OZ 5.x removed ReentrancyGuardUpgradeable. Their regular
+    ///      ReentrancyGuard uses EIP-7201 storage (upgrade-safe), but
+    ///      hardhat-upgrades still rejects its constructor. We inline the
+    ///      same logic here using a plain storage variable, which the
+    ///      upgrade validator handles correctly.
+    modifier nonReentrant() {
+        if (_reentrancyStatus == _ENTERED) revert PetPassport__ReentrantCall();
+        _reentrancyStatus = _ENTERED;
+        _;
+        _reentrancyStatus = _NOT_ENTERED;
+    }
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
@@ -110,7 +119,7 @@ contract PetPassport is
     ) public initializer {
         // Initialise parent contracts — must call all __X_init functions
         // in the inheritance chain for upgradeable contracts.
-        __ERC721_init("PetPassport", "PET");  // sets NFT name and symbol
+        __ERC721_init("PetPassport", "PET");
         __AccessControl_init();
 
         // Initialise reentrancy guard — 0 → NOT_ENTERED avoids an extra SSTORE
@@ -126,42 +135,39 @@ contract PetPassport is
         _grantRole(UPGRADER_ROLE, upgrader);
     }
 
-    // ─── Core functions ───────────────────────────────────────────────────────
+    // ─── External functions ───────────────────────────────────────────────────
 
     /// @inheritdoc IPetPassport
-    /// @dev onlyRole(MINTER_ROLE) ensures only the NestJS API wallet can mint.
-    ///      The NestJS API uploads to IPFS first, gets the CID, then calls this.
+    /// @dev Follows Checks-Effects-Interactions: all state is written before
+    ///      _safeMint triggers the external onERC721Received callback.
     function mint(
         address to,
-        string calldata uri  // renamed from tokenURI to avoid shadowing the view function
+        string calldata uri
     ) external onlyRole(MINTER_ROLE) nonReentrant returns (uint256) {
-        require(to != address(0), "PetPassport: mint to zero address");
-        require(bytes(uri).length > 0, "PetPassport: empty tokenURI");
+        // Checks
+        if (to == address(0)) revert PetPassport__MintToZeroAddress();
+        if (bytes(uri).length == 0) revert PetPassport__EmptyTokenURI();
 
-        uint256 tokenId = _nextTokenId;
-        _nextTokenId++;
-
-        // Mint the NFT — transfers ownership from address(0) to `to`
-        _safeMint(to, tokenId);
-
-        // Store the IPFS URI pointing to pet metadata JSON
+        // Effects — all state written before the external call
+        uint256 tokenId = _nextTokenId++;
         _tokenURIs[tokenId] = uri;
 
+        // Interactions — external call last
+        _safeMint(to, tokenId);
         emit PassportMinted(to, tokenId, uri);
         return tokenId;
     }
 
     /// @inheritdoc IPetPassport
-    /// @dev Called by the NestJS API when a pet's medical records are updated.
-    ///      A new metadata JSON is uploaded to IPFS with updated records,
-    ///      and the new CID is stored here.
     function updateTokenURI(
         uint256 tokenId,
         string calldata newTokenURI
     ) external onlyRole(MINTER_ROLE) nonReentrant {
-        require(_ownerOf(tokenId) != address(0), "PetPassport: token does not exist");
-        require(bytes(newTokenURI).length > 0, "PetPassport: empty tokenURI");
+        // Checks
+        if (_ownerOf(tokenId) == address(0)) revert PetPassport__TokenDoesNotExist(tokenId);
+        if (bytes(newTokenURI).length == 0) revert PetPassport__EmptyTokenURI();
 
+        // Effects
         _tokenURIs[tokenId] = newTokenURI;
         emit TokenURIUpdated(tokenId, newTokenURI);
     }
@@ -169,31 +175,34 @@ contract PetPassport is
     // ─── View functions ───────────────────────────────────────────────────────
 
     /// @notice Returns the IPFS metadata URI for a given token.
-    /// @dev Overrides ERC721Upgradeable.tokenURI to use our custom storage.
+    /// @dev    Overrides ERC721Upgradeable.tokenURI to use our custom storage.
+    /// @param  tokenId The token to query.
+    /// @return         The IPFS metadata URI.
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
-        require(_ownerOf(tokenId) != address(0), "PetPassport: token does not exist");
+        if (_ownerOf(tokenId) == address(0)) revert PetPassport__TokenDoesNotExist(tokenId);
         return _tokenURIs[tokenId];
     }
 
-    // ─── UUPS upgrade authorisation ───────────────────────────────────────────
-
-    /// @notice Guards the upgrade function — only UPGRADER_ROLE can upgrade.
-    /// @dev Required by UUPSUpgradeable. Called internally before any upgrade.
-    ///      If this reverts, the upgrade is blocked.
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyRole(UPGRADER_ROLE) {}
-
-    // ─── Interface support ────────────────────────────────────────────────────
-
     /// @notice Declares which interfaces this contract supports.
-    /// @dev Overrides required because both ERC721 and AccessControl define supportsInterface.
-    ///      Wallets call this to check if the contract is a valid ERC-721.
+    /// @dev    Overrides required because both ERC721 and AccessControl define supportsInterface.
+    ///         Wallets call this to check if the contract is a valid ERC-721.
+    /// @param  interfaceId The interface identifier to check.
+    /// @return             True if the interface is supported.
     function supportsInterface(
         bytes4 interfaceId
     ) public view override(ERC721Upgradeable, AccessControlUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+
+    // ─── Internal functions ───────────────────────────────────────────────────
+
+    /// @notice Guards the upgrade function — only UPGRADER_ROLE can upgrade.
+    /// @dev    Required by UUPSUpgradeable. Called internally before any upgrade.
+    ///         If this reverts, the upgrade is blocked.
+    /// @param  newImplementation Address of the new implementation contract.
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyRole(UPGRADER_ROLE) {}
 }
